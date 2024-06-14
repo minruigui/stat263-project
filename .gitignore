@@ -1,0 +1,6 @@
+wandb/**
+latent_criteo/**
+*.pth
+criteo/** 
+latent_criteo/**
+

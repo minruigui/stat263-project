@@ -154,10 +154,11 @@ class ModelsMap(nn.Module):
         output = {}
         for idx, (k, v) in enumerate(x.items()):
             mean = self.models[k].Encoder.FC_mean(hs[idx])
-            var = self.models[k].Encoder.FC_var(hs[idx])
-            z = self.models[k].reparameterization(mean, torch.exp(0.5 * var))
+            # var = self.models[k].Encoder.FC_var(hs[idx])
+            # z = self.models[k].reparameterization(mean, torch.exp(0.5 * var))
+            z=mean
             x_hat = self.models[k].decode(z)
-            output[k] = [x_hat, mean, var]
+            output[k] = [x_hat, 0, 0]
         return output
     def encode(self,x):
         hs = []
@@ -175,7 +176,9 @@ class ModelsMap(nn.Module):
             z = self.models[k].reparameterization(mean, torch.exp(0.5 * var))
             output[k] = [z, mean, var]
         return output
-columns_to_keep = ["label"]
+columns_to_keep = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9', 'C10', 'C11',
+       'C12', 'C13', 'C14', 'C15', 'C16', 'C17', 'C18', 'C19', 'C20', 'C21',
+       'C22', 'C23', 'C24', 'C25', 'C26',"label"]
 model = ModelsMap(columns_to_keep, num_classes, hidden_dim, 4, DEVICE)         
 from torch.optim import Adam
 
@@ -183,7 +186,8 @@ BCE_loss = nn.NLLLoss( reduction='sum')
 
 def loss_function(x, x_hat, mean, log_var):
     reproduction_loss = BCE_loss(x_hat,x)
-    KLD      = - 0.5 * torch.sum(1+ log_var - mean.pow(2) - log_var.exp())
+    # KLD      = - 0.5 * torch.sum(1+ log_var - mean.pow(2) - log_var.exp())
+    KLD = 0
 
     return reproduction_loss + KLD
 
@@ -231,7 +235,7 @@ if wb:
     # Set the project where this run will be logged
     project="stat263", 
     # We pass a run name (otherwise it’ll be randomly assigned, like sunshine-lollypop-10)
-    name=f"experiment_{str(columns_to_keep)}_mv_togather", 
+    name=f"experiment_{str(columns_to_keep)}_no_vae", 
     # Track hyperparameters and run metadata
     config={
     "learning_rate": lr,
@@ -290,4 +294,4 @@ if wb:
     wandb.finish()
 print("Finish!!")
 
-torch.save(model.state_dict(), 'model_weights.pth')
+torch.save(model.state_dict(), 'nov_model_weights.pth')
